@@ -4,6 +4,7 @@
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
+        <option name="testRunner" value="CHOOSE_PER_TEST" />
         <option name="externalProjectPath" value="$PROJECT_DIR$/basic-api-ktor-db9787b1d91335412d7d36200b0ce6a6c9340677" />
         <option name="gradleJvm" value="#JAVA_HOME" />
         <option name="modules">
