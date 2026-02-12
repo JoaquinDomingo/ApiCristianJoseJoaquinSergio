@@ -1,7 +1,8 @@
 package com.ktor
 
-import com.domain.models.Employee
-import com.domain.models.Salary
+import com.data.repository.ConsoleProviderUseCase
+import com.domain.models.Console
+import com.domain.models.UpdateConsole
 import io.ktor.http.*
 import io.ktor.serialization.*
 import io.ktor.server.application.*
@@ -20,7 +21,63 @@ fun Application.configureRouting() {
             call.respondText("Hello World!")
         }
 
+        get("/console") {
+            val consoles = ConsoleProviderUseCase.getAllConsoles()
+            call.respond(consoles)
+        }
 
+        get("/console/{name}") {
+            val name = call.parameters["name"] ?: ""
+            val console = ConsoleProviderUseCase.getConsoleByName(name)
+            if (console == null) {
+                call.respond(HttpStatusCode.NotFound, "No se ha encontrado la consola")
+            } else {
+                call.respond(console)
+            }
+        }
+
+        post("/console") {
+            try {
+                val console = call.receive<Console>()
+                val res = ConsoleProviderUseCase.insertConsole(console)
+                if (res) {
+                    call.respond(HttpStatusCode.Created, "Consola creada: ${console.name}")
+                } else {
+                    call.respond(HttpStatusCode.Conflict, "No se ha podido crear la consola")
+                }
+            } catch (e: Exception) {
+                call.respond(HttpStatusCode.BadRequest, "JSON inválido")
+            }
+        }
+
+        patch("/console/{name}") {
+            val name = call.parameters["name"] ?: ""
+            try {
+                val update = call.receive<UpdateConsole>()
+                val updated = ConsoleProviderUseCase.updateConsole(name, update)
+                if (updated == null) {
+                    call.respond(HttpStatusCode.NotFound, "No se ha encontrado la consola")
+                } else {
+                    call.respond(HttpStatusCode.OK, updated)
+                }
+            } catch (e: Exception) {
+                call.respond(HttpStatusCode.BadRequest, "JSON inválido")
+            }
+        }
+
+        delete("/console/{name}") {
+            val name = call.parameters["name"] ?: ""
+            val deleted = ConsoleProviderUseCase.deleteConsoleByName(name)
+            if (deleted) {
+                call.respond(HttpStatusCode.NoContent)
+            } else {
+                call.respond(HttpStatusCode.NotFound, "No se ha encontrado la consola")
+            }
+        }
+    }
+}
+
+/* EJEMPLO DE SANTI DE EMPLOYEES (Lo he comentado para que no de error):
         /*
         En esta ruta, comprobamos diferentes parámetros:
         1.- Que no tenga ningún parámetro. Devuelve todos los empleados sin filtro.
@@ -177,3 +234,4 @@ fun Application.configureRouting() {
         Por defecto, el servidor enviará la respuesta en JSON si el cliente en su solicitud no incluye una cabecera
         Accept con application/json
  */
+*/
