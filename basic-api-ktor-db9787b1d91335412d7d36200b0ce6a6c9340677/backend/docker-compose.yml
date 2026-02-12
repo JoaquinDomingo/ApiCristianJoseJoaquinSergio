@@ -1,0 +1,32 @@
+version: "3.1"
+services:
+    db:
+        image: mariadb:latest
+
+        ports: 
+            - "3306:3306"
+        command: --default-authentication-plugin=mysql_native_password
+        environment:
+            MYSQL_DATABASE: dbEmployee
+            MYSQL_USER: santi  #usuario santi
+            MYSQL_PASSWORD: santi #contraseña del usuario santi
+            MYSQL_ROOT_PASSWORD: santiago #contraseña del root
+        volumes:
+            - ./dump:/docker-entrypoint-initdb.d
+            - ./conf:/etc/mysql/conf.d
+            - persistent:/var/lib/mysql
+        networks:
+            - default
+
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+
+        depends_on:
+            - db
+        ports:
+            - 8000:80
+        environment:
+            PMA_HOST: db
+            MYSQL_ROOT_PASSWORD: santiago #contraseña del root
+volumes:
+    persistent:
