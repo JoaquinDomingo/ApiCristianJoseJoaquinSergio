@@ -21,6 +21,7 @@ ktor trabaja con la clase interna Application que es la que representa el contex
  */
 
 fun Application.myModule() {
+    configureDatabase()
     configureSerialization()
     configureRouting()
 }
