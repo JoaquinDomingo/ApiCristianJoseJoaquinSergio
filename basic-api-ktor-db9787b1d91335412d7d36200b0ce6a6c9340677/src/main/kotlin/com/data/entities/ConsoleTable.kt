@@ -8,4 +8,6 @@ object ConsoleTable : IntIdTable(name = "consoles") {
     val company = varchar("company", 64)
     val description = varchar("description", 512)
     val image = varchar("image", 512)
+    val price = double("price").default(0.0)
+    val favorite = bool("favorite").default(false)
 }

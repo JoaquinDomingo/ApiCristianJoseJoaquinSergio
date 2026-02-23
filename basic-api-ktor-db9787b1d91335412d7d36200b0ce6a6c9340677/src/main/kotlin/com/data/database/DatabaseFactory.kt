@@ -48,14 +48,14 @@ object DatabaseFactory {
         if (!ConsoleTable.selectAll().empty()) return
 
         val seedData = listOf(
-            Console("Nintendo Entertainment System (NES)", "1983", "Nintendo", "Una consola de 8 bits que revitalizó la industria del videojuego.", "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/NES-Console-Set.png/2560px-NES-Console-Set.png").apply {
+            Console("Nintendo Entertainment System (NES)", "1983", "Nintendo", "Una consola de 8 bits que revitalizó la industria del videojuego.", "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/NES-Console-Set.png/2560px-NES-Console-Set.png", 150.0, true).apply {
                 nativeGames = listOf(
                     Game("Super Mario Bros.", "1985", "Plataformas icónico.", "https://m.media-amazon.com/images/I/51kWyydz-QL._AC_UF894,1000_QL80_.jpg"),
                     Game("The Legend of Zelda", "1986", "Aventura en Hyrule.", "https://static.wikia.nocookie.net/zelda/images/d/d7/Zelda_box.jpg/revision/latest?cb=20160714142215&path-prefix=es"),
                     Game("Metroid", "1986", "Acción y exploración.", "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRc_8bPC8xeObIKpwifKIgCSw_ENi2obeSLSA&s")
                 )
             },
-            Console("Super NES (SNES)", "1990", "Nintendo", "Consola de 16 bits famosa por sus títulos legendarios.", "https://upload.wikimedia.org/wikipedia/commons/1/18/Wikipedia_SNES_PAL.jpg").apply {
+            Console("Super NES (SNES)", "1990", "Nintendo", "Consola de 16 bits famosa por sus títulos legendarios.", "https://upload.wikimedia.org/wikipedia/commons/1/18/Wikipedia_SNES_PAL.jpg", 130.0, true).apply {
                 nativeGames = listOf(
                     Game("Super Mario World", "1990", "Aventura en Dinosaur Land.", "https://www.retroplace.com/pics/snes/packshots/48002--super-mario-world.png"),
                     Game("F-Zero", "1990", "Carreras futuristas.", "https://m.media-amazon.com/images/M/MV5BNjg3ZmNhMDUtMzcwMC00NWJkLWE1MzUtZTNlNjBhM2IyYmQwXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg"),
@@ -66,7 +66,7 @@ object DatabaseFactory {
                     Game("Donkey Kong", "1983", "Port del arcade original.", "https://images.wikidexcdn.net/mwuploads/esssbwiki/thumb/e/e8/latest/20121029150116/Car%C3%A1tula_Donkey_Kong_%28NES%29.jpg/800px-Car%C3%A1tula_Donkey_Kong_%28NES%29.jpg")
                 )
             },
-            Console("Nintendo 64", "1996", "Nintendo", "Primera consola de Nintendo con gráficos en 3D reales.", "https://images.cashconverters.es/productslive/consola-nintendo-64/nintendo-nintendo-64_CC076_E464115-0_0.jpg").apply {
+            Console("Nintendo 64", "1996", "Nintendo", "Primera consola de Nintendo con gráficos en 3D reales.", "https://images.cashconverters.es/productslive/consola-nintendo-64/nintendo-nintendo-64_CC076_E464115-0_0.jpg", 110.0, false).apply {
                 nativeGames = listOf(
                     Game("Super Mario 64", "1996", "Plataformas 3D revolucionario.", "https://upload.wikimedia.org/wikipedia/en/thumb/e/e9/Super_Mario_64.png/250px-Super_Mario_64.png"),
                     Game("The Legend of Zelda: Ocarina of Time", "1998", "Obra maestra de aventura.", "https://storage.googleapis.com/images.pricecharting.com/bidbex33joqxpepk/1600.jpg"),
@@ -77,7 +77,7 @@ object DatabaseFactory {
                     Game("Mortal Kombat", "1992", "Lucha visceral.", "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSkbnBeUD5_r8s1_3q_Yz2Xm_5SMHKBQGb2ew&s")
                 )
             },
-            Console("PlayStation 1", "1994", "Sony", "Consola de 32 bits que lanzó a Sony al éxito mundial.", "https://noseestropea.com/wp-content/uploads/2022/01/PlayStation-scaled.jpg").apply {
+            Console("PlayStation 1", "1994", "Sony", "Consola de 32 bits que lanzó a Sony al éxito mundial.", "https://noseestropea.com/wp-content/uploads/2022/01/PlayStation-scaled.jpg", 85.0, true).apply {
                 nativeGames = listOf(
                     Game("Gran Turismo", "1997", "Simulador de conducción real.", "https://upload.wikimedia.org/wikipedia/en/c/c8/Gran_Turismo_-_Cover_-_JP.jpg"),
                     Game("Tekken 3", "1998", "Lucha 3D de alto nivel.", "https://static.wikia.nocookie.net/tekkenlatino/images/4/4e/300px-Tekken3.jpg/revision/latest?cb=20091206010553&path-prefix=es"),
@@ -88,7 +88,7 @@ object DatabaseFactory {
                     Game("Resident Evil 2", "1999", "Survival horror adaptado.", "https://media.vandal.net/m/7-2018/20187613111_1.jpg.webp")
                 )
             },
-            Console("PlayStation 2", "2000", "Sony", "La consola más vendida de la historia.", "https://s3.abcstatics.com/media/tecnologia/2020/03/04/playstation-2-kRQG--1248x698@abc.jpg").apply {
+            Console("PlayStation 2", "2000", "Sony", "La consola más vendida de la historia.", "https://s3.abcstatics.com/media/tecnologia/2020/03/04/playstation-2-kRQG--1248x698@abc.jpg", 95.0, true).apply {
                 nativeGames = listOf(
                     Game("God of War", "2005", "Acción hack and slash.", "https://i.ebayimg.com/images/g/Lk8AAOSwLa9UV3Wh/s-l400.jpg"),
                     Game("Shadow of the Colossus", "2005", "Batallas contra colosos.", "https://static.wikia.nocookie.net/shadowofthecolossusespaol/images/b/b9/Shadow-colossus.jpg/revision/latest?cb=20111111215606&path-prefix=es"),
@@ -99,7 +99,7 @@ object DatabaseFactory {
                     Game("Metal Gear Solid", "1998", "Sigilo y espionaje.", "https://static.wikia.nocookie.net/videojuego/images/3/36/MetalGearSolidcover.png/revision/latest?cb=20090311195014")
                 )
             },
-            Console("PlayStation 3", "2006", "Sony", "Soporte HD y Blu-ray, revolucionando el multimedia.", "https://i.blogs.es/746491/ps3/840_560.jpg").apply {
+            Console("PlayStation 3", "2006", "Sony", "Soporte HD y Blu-ray, revolucionando el multimedia.", "https://i.blogs.es/746491/ps3/840_560.jpg", 115.0, false).apply {
                 nativeGames = listOf(
                     Game("Uncharted 2", "2009", "Aventura de acción.", "https://m.media-amazon.com/images/I/916oecP4GUL.jpg"),
                     Game("The Last of Us", "2013", "Drama post-apocalíptico.", "https://m.media-amazon.com/images/I/71zVE5lPRVL.jpg"),
@@ -110,7 +110,7 @@ object DatabaseFactory {
                     Game("Resident Evil 4", "2005", "Terror y acción.", "https://static.wikia.nocookie.net/residentevil/images/e/e2/Resident_evil4_ps2.jpg/revision/latest/scale-to-width/360?cb=20250709164434&path-prefix=es")
                 )
             },
-            Console("Xbox", "2001", "Microsoft", "Pionera con Xbox Live y hardware potente.", "https://cdn.mos.cms.futurecdn.net/8b9bca79a376631e1b09e821e951ea90.jpg").apply {
+            Console("Xbox", "2001", "Microsoft", "Pionera con Xbox Live y hardware potente.", "https://cdn.mos.cms.futurecdn.net/8b9bca79a376631e1b09e821e951ea90.jpg", 90.0, false).apply {
                 nativeGames = listOf(
                     Game("Halo: Combat Evolved", "2001", "FPS de ciencia ficción.", "https://storage.googleapis.com/retrobroker/products/rtr_img_8038_1715802448128/1x.webp"),
                     Game("Fable", "2004", "RPG de acción.", "https://media.vandal.net/m/688/2004102223363_1.jpg"),
@@ -121,7 +121,7 @@ object DatabaseFactory {
                     Game("Star Wars: KOTOR", "2003", "RPG estelar.", "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgz9Dz1EyNmS5hvioYEGq3GxFdUPYbAdR9qg&s")
                 )
             },
-            Console("Xbox 360", "2005", "Microsoft", "Consolidó el juego online y las grandes franquicias.", "https://t4.ftcdn.net/jpg/03/53/12/41/360_F_353124125_QxCu2PKncCs9GIppQLmvyu2U9xJ0c7Gt.jpg").apply {
+            Console("Xbox 360", "2005", "Microsoft", "Consolidó el juego online y las grandes franquicias.", "https://t4.ftcdn.net/jpg/03/53/12/41/360_F_353124125_QxCu2PKncCs9GIppQLmvyu2U9xJ0c7Gt.jpg", 100.0, true).apply {
                 nativeGames = listOf(
                     Game("Gears of War", "2006", "Shooter táctico.", "https://static.wikia.nocookie.net/gearsofwar/images/f/f5/Gears_of_War_Portada.png/revision/latest?cb=20160708053912&path-prefix=es"),
                     Game("Halo 3", "2007", "Conclusión épica.", "https://static.wikia.nocookie.net/halo/images/3/32/Halo_3.png/revision/latest/scale-to-width-down/230?cb=20111014172256&path-prefix=es"),
@@ -132,7 +132,7 @@ object DatabaseFactory {
                     Game("Fallout 3", "2008", "RPG post-nuclear.", "https://media.vandal.net/m/7296/20081015172418_1.jpg")
                 )
             },
-            Console("Sega Mega Drive", "1988", "Sega", "Consola de 16 bits conocida por Sonic y la guerra con Nintendo.", "https://static.wikia.nocookie.net/segaenciclopedia/images/f/f3/SegaMegaDrive.png/revision/latest?cb=20171103010533&path-prefix=es").apply {
+            Console("Sega Mega Drive", "1988", "Sega", "Consola de 16 bits conocida por Sonic y la guerra con Nintendo.", "https://static.wikia.nocookie.net/segaenciclopedia/images/f/f3/SegaMegaDrive.png/revision/latest?cb=20171103010533&path-prefix=es", 140.0, true).apply {
                 nativeGames = listOf(
                     Game("Sonic the Hedgehog", "1991", "Velocidad pura.", "https://upload.wikimedia.org/wikipedia/en/b/ba/Sonic_the_Hedgehog_1_Genesis_box_art.jpg"),
                     Game("Streets of Rage", "1991", "Beat 'em up.", "https://static.wikia.nocookie.net/streetsofrage/images/0/0a/SoRCover.jpg/revision/latest?cb=20190819175212"),
@@ -143,7 +143,7 @@ object DatabaseFactory {
                     Game("Mega Man: The Wily Wars", "1994", "Recopilación.", "https://static.wikia.nocookie.net/esmegaman/images/7/7f/WilyWars-Portada-USA.jpg/revision/latest?cb=20130127135251")
                 )
             },
-            Console("GameCube", "2001", "Nintendo", "Consola compacta con discos mini-DVD y catálogo querido.", "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Nintendo-GameCube-Console-FL.jpg/250px-Nintendo-GameCube-Console-FL.jpg").apply {
+            Console("GameCube", "2001", "Nintendo", "Consola compacta con discos mini-DVD y catálogo querido.", "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Nintendo-GameCube-Console-FL.jpg/250px-Nintendo-GameCube-Console-FL.jpg", 160.0, true).apply {
                 nativeGames = listOf(
                     Game("Super Smash Bros. Melee", "2001", "Lucha frenética.", "https://m.media-amazon.com/images/I/71hDoTzdOXS.jpg"),
                     Game("Luigi's Mansion", "2001", "Aventura de fantasmas.", "https://static.wikia.nocookie.net/mario/images/3/34/Luigi%27s_Mansion.jpg/revision/latest?cb=20090413154011&path-prefix=es"),
@@ -163,9 +163,10 @@ object DatabaseFactory {
                 it[company] = console.company
                 it[description] = console.description
                 it[image] = console.image
+                it[price] = console.price
+                it[favorite] = console.favorite
             }
 
-            // INSERTAMOS LOS JUEGOS DIFERENCIANDO NATIVOS DE ADAPTADOS
             console.nativeGames.forEach { game ->
                 insertGameRecord(game, console.name, isNative = true)
             }

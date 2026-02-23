@@ -9,6 +9,9 @@ data class Console(
     var company: String,
     var description: String,
     var image: String,
+    val price: Double,
+    val favorite: Boolean,
     var nativeGames: List<Game> = emptyList(),
-    var adaptedGames: List<Game> = emptyList(),
+    var adaptedGames: List<Game> = emptyList()
+    
 )

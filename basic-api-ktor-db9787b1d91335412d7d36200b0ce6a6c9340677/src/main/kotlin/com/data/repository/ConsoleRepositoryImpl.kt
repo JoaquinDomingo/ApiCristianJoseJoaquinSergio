@@ -27,7 +27,9 @@ class ConsoleRepositoryImpl : ConsoleRepository {
             releasedate = this[ConsoleTable.releaseDate],
             company = this[ConsoleTable.company],
             description = this[ConsoleTable.description],
-            image = this[ConsoleTable.image]
+            image = this[ConsoleTable.image],
+            price = this[ConsoleTable.price],        // RECUPERAR PRECIO
+            favorite = this[ConsoleTable.favorite]   // CAMBIADO: Coincide con el dominio
         ).apply {
             // Filtramos y mapeamos a la lista de Nativos
             this.nativeGames = allGamesRows
@@ -69,12 +71,14 @@ class ConsoleRepositoryImpl : ConsoleRepository {
                 it[company] = console.company
                 it[description] = console.description
                 it[image] = console.image
+                it[price] = console.price         // GUARDAR PRECIO
+                it[favorite] = console.favorite   // CAMBIADO: Coincide con el dominio
             }
         }
     }
 
     override suspend fun deleteConsoleByName(name: String): Boolean = DatabaseFactory.dbQuery {
-        // Borramos los juegos asociados primero (o cascada en DB)
+        // Borramos los juegos asociados primero
         GameTable.deleteWhere { GameTable.consoleName eq name }
         ConsoleTable.deleteWhere { ConsoleTable.name eq name } > 0
     }
@@ -86,6 +90,8 @@ class ConsoleRepositoryImpl : ConsoleRepository {
             update.company?.let { c -> it[company] = c }
             update.description?.let { d -> it[description] = d }
             update.image?.let { i -> it[image] = i }
+            update.price?.let { p -> it[price] = p }             // ACTUALIZAR PRECIO
+            update.favorite?.let { f -> it[favorite] = f }       // CAMBIADO: Coincide con el dominio
         }
 
         val finalName = update.name ?: name
