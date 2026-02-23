@@ -1,42 +1,87 @@
-# srodenas-sample-employee2
+# API de Consolas (Ktor + Exposed)
 
-This project was created using the [Ktor Project Generator](https://start.ktor.io).
+API REST en Ktor 3 con persistencia mediante Exposed y conexión via HikariCP. Incluye datos seed y puede usar MySQL (docker-compose) o H2 embebido por defecto.
 
-Here are some useful links to get you started:
+## Requisitos
+- JDK 17
+- Docker (opcional, para MySQL + phpMyAdmin)
+- `./gradlew` (ya incluido) ejecutable en Unix/macOS
 
-- [Ktor Documentation](https://ktor.io/docs/home.html)
-- [Ktor GitHub page](https://github.com/ktorio/ktor)
-- The [Ktor Slack chat](https://app.slack.com/client/T09229ZC6/C0A974TJ9). You'll need to [request an invite](https://surveys.jetbrains.com/s3/kotlin-slack-sign-up) to join.
+## Configuración de base de datos
+`src/main/resources/application.conf` define un bloque `database`. Si no se establecen variables, se usa H2 en disco `build/db/consoles` con driver `org.h2.Driver`.
 
-## Features
+Variables de entorno soportadas (sobrescriben `application.conf`):
+- `DB_URL` (p.ej. `jdbc:mysql://localhost:3306/dbEmployee`)
+- `DB_DRIVER` (p.ej. `com.mysql.cj.jdbc.Driver`)
+- `DB_USER`
+- `DB_PASSWORD`
+- `DB_MAX_POOL_SIZE`
 
-Here's a list of features included in this project:
-
-| Name                                                                   | Description                                                                        |
-| ------------------------------------------------------------------------|------------------------------------------------------------------------------------ |
-| [Routing](https://start.ktor.io/p/routing)                             | Provides a structured routing DSL                                                  |
-| [Static Content](https://start.ktor.io/p/static-content)               | Serves static files from defined locations                                         |
-| [Content Negotiation](https://start.ktor.io/p/content-negotiation)     | Provides automatic content conversion according to Content-Type and Accept headers |
-| [kotlinx.serialization](https://start.ktor.io/p/kotlinx-serialization) | Handles JSON serialization using kotlinx.serialization library                     |
-
-## Building & Running
-
-To build or run the project, use one of the following tasks:
-
-| Task                          | Description                                                          |
-| -------------------------------|---------------------------------------------------------------------- |
-| `./gradlew test`              | Run the tests                                                        |
-| `./gradlew build`             | Build everything                                                     |
-| `buildFatJar`                 | Build an executable JAR of the server with all dependencies included |
-| `buildImage`                  | Build the docker image to use with the fat JAR                       |
-| `publishImageToLocalRegistry` | Publish the docker image locally                                     |
-| `run`                         | Run the server                                                       |
-| `runDocker`                   | Run using the local docker image                                     |
-
-If the server starts successfully, you'll see the following output:
-
+### MySQL con Docker
 ```
-2024-12-04 14:32:45.584 [main] INFO  Application - Application started in 0.303 seconds.
-2024-12-04 14:32:45.682 [main] INFO  Application - Responding at http://0.0.0.0:8080
+cd backend
+docker-compose up -d
+```
+Esto levanta MySQL con la BBDD `dbEmployee` y un volcado inicial en `backend/dump/Employee.sql`, además de phpMyAdmin en `http://localhost:8000`. Usa las credenciales del `docker-compose.yml` y define:
+```
+export DB_URL="jdbc:mysql://localhost:3306/dbEmployee"
+export DB_DRIVER="com.mysql.cj.jdbc.Driver"
+export DB_USER="santi"
+export DB_PASSWORD="santi"
 ```
 
+## Ejecución
+```
+./gradlew run
+# o tests
+./gradlew test
+```
+El servidor arranca en `http://localhost:8081` (configurable en `application.conf`).
+
+## Endpoints
+Base path: `/`
+
+| Método | Ruta                | Descripción                               | Body / Params                                      |
+| ------ | ------------------- | ----------------------------------------- | --------------------------------------------------- |
+| GET    | `/`                 | Healthcheck                               | —                                                   |
+| GET    | `/console`          | Lista todas las consolas                  | —                                                   |
+| GET    | `/console/{name}`   | Obtiene una consola por nombre exacto     | `name` en path                                      |
+| POST   | `/console`          | Crea consola                              | JSON `Console`                                      |
+| PATCH  | `/console/{name}`   | Actualiza campos de una consola existente | Path `name`, body `UpdateConsole` (parcial)         |
+| DELETE | `/console/{name}`   | Elimina consola                           | `name` en path                                      |
+
+### Modelos
+```json
+// Console
+{
+  "name": "PlayStation 5",
+  "releasedate": "2020",
+  "company": "Sony",
+  "description": "Consola de nueva generación.",
+  "image": "https://..."
+}
+// UpdateConsole (todos los campos opcionales)
+{
+  "name": "PS5 Slim"
+}
+```
+
+### Ejemplos con curl
+```
+curl http://localhost:8081/console
+
+curl -X POST http://localhost:8081/console \
+  -H "Content-Type: application/json" \
+  -d '{"name":"PS5","releasedate":"2020","company":"Sony","description":"NG","image":"https://img"}'
+
+curl -X PATCH http://localhost:8081/console/PS5 \
+  -H "Content-Type: application/json" \
+  -d '{"description":"Slim edition"}'
+
+curl -X DELETE http://localhost:8081/console/PS5
+```
+
+## Notas técnicas
+- Persistencia con Exposed (core + DAO + JDBC) y pool Hikari.
+- Seed automático de consolas si la tabla `consoles` está vacía.
+- Toolchain fijada a JVM 17 para evitar incompatibilidades (Gradle 8.10).

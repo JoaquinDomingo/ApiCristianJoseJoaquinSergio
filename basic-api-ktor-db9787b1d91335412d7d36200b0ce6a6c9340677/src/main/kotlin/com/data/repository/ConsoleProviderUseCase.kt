@@ -24,7 +24,7 @@ object ConsoleProviderUseCase {
     }
 
     suspend fun getConsoleByName(name: String): Console? {
-        return repository.getConsoles().find { it.name == name }
+        return repository.getConsoleByName(name)
     }
 
     suspend fun addGameToConsole(name: String, game: Game, isNative: Boolean): Boolean {
