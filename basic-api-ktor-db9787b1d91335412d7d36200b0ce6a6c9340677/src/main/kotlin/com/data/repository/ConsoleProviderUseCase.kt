@@ -1,6 +1,7 @@
 package com.data.repository
 
 import com.domain.models.Console
+import com.domain.models.Game
 import com.domain.models.UpdateConsole
 import com.domain.repository.ConsoleRepository
 
@@ -24,5 +25,9 @@ object ConsoleProviderUseCase {
 
     suspend fun getConsoleByName(name: String): Console? {
         return repository.getConsoles().find { it.name == name }
+    }
+
+    suspend fun addGameToConsole(name: String, game: Game, isNative: Boolean): Boolean {
+        return repository.addGameToConsole(name, game, isNative)
     }
 }

@@ -8,5 +8,7 @@ data class Console(
     var releasedate: String,
     var company: String,
     var description: String,
-    var image: String
+    var image: String,
+    var nativeGames: List<Game> = emptyList(),
+    var adaptedGames: List<Game> = emptyList(),
 )
