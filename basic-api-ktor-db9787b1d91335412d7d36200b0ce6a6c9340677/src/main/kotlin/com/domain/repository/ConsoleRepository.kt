@@ -1,6 +1,7 @@
 package com.domain.repository
 
 import com.domain.models.Console
+import com.domain.models.Game
 import com.domain.models.UpdateConsole
 
 interface ConsoleRepository {
@@ -9,4 +10,5 @@ interface ConsoleRepository {
     suspend fun addConsole(console: Console)
     suspend fun deleteConsoleByName(name: String): Boolean
     suspend fun updateConsole(name: String, update: UpdateConsole): Console?
+    suspend fun addGameToConsole(consoleName: String, game: Game, isNative: Boolean): Boolean
 }
