@@ -1,13 +1,9 @@
 package com.data.entities
 
-import org.jetbrains.exposed.sql.javatime.CurrentDateTime
-import org.jetbrains.exposed.sql.javatime.datetime
-import org.jetbrains.exposed.dao.id.IdTable
+import org.jetbrains.exposed.dao.id.IntIdTable
 
-object UserTable : IdTable<Int>("users") {
-    override val id = integer("id").autoIncrement().entityId()
-    val username = varchar("username", 50)
-    val email = varchar("email", 128)
+object UserTable : IntIdTable("users") {
+
+    val email = varchar("email", 128).uniqueIndex()
     val passwordHash = varchar("password_hash", 256)
-    val createdAt = datetime("created_at").defaultExpression(CurrentDateTime)
 }

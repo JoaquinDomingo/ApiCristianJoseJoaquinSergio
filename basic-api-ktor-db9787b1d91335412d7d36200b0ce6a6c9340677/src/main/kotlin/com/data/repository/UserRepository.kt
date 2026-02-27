@@ -1,44 +1,56 @@
 package com.data.repository
 
-import at.favre.lib.crypto.bcrypt.BCrypt
 import com.data.database.DatabaseFactory
 import com.data.entities.UserTable
 import com.domain.models.User
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.mindrot.jbcrypt.BCrypt
+import com.auth0.jwt.JWT
+import com.auth0.jwt.algorithms.Algorithm
+import java.util.*
 
 class UserRepository {
-
     suspend fun registerUser(user: User): User? = DatabaseFactory.dbQuery {
-        val exists = UserTable.select { UserTable.email eq user.email }.any()
+        val exists = UserTable
+            .select { UserTable.email eq user.email }
+            .any()
         if (exists) return@dbQuery null
-
-        val passwordHash = BCrypt.withDefaults().hashToString(12, user.password.toCharArray())
-
+        val hashedPassword = BCrypt.hashpw(user.password, BCrypt.gensalt())
         val id = UserTable.insertAndGetId {
             it[UserTable.email] = user.email
-            it[UserTable.passwordHash] = passwordHash
-            it[UserTable.username] = user.username
+            it[passwordHash] = hashedPassword
         }
-
-        user.copy(id = id.value, password = passwordHash)
+        user.copy(id = id.value, password = "")
     }
 
     suspend fun login(email: String, password: String): User? = DatabaseFactory.dbQuery {
-        UserTable.select { UserTable.email eq email }
-            .map { row ->
-                val hash = row[UserTable.passwordHash]
-                val result = BCrypt.verifyer().verify(password.toCharArray(), hash)
-                if (result.verified) rowToUser(row) else null
-            }
+        val userRow = UserTable
+            .select { UserTable.email eq email }
             .singleOrNull()
+        if (userRow != null) {
+            val storedHash = userRow[UserTable.passwordHash]
+            if (BCrypt.checkpw(password, storedHash)) {
+                return@dbQuery User(
+                    id = userRow[UserTable.id].value,
+                    email = userRow[UserTable.email],
+                    password = ""
+                )
+            }
+        }
+        null
     }
 
-    private fun rowToUser(row: ResultRow) = User(
-        id = row[UserTable.id].value,
-        username = row[UserTable.username],
-        email = row[UserTable.email],
-        password = row[UserTable.passwordHash],
-        token = null
-    )
+    fun generateToken(userEmail: String): String {
+        val jwtSecret = "mi_super_secreto"
+        val jwtIssuer = "ktor.io"
+        val jwtAudience = "ktor-audience"
+        val expiration = System.currentTimeMillis() + 600000
+        return JWT.create()
+            .withIssuer(jwtIssuer)
+            .withAudience(jwtAudience)
+            .withClaim("email", userEmail)
+            .withExpiresAt(Date(expiration))
+            .sign(Algorithm.HMAC256(jwtSecret))
+    }
 }
