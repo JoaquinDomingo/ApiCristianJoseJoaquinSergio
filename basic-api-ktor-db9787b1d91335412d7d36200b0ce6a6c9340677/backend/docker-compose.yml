@@ -36,7 +36,7 @@ services:
     restart: always
 
   phpmyadmin:
-    image: phpmyadmin/phpmyadmin
+    image: arm64v8/phpmyadmin
     container_name: backend-phpmyadmin
     depends_on:
       - db
