@@ -10,4 +10,5 @@ object ConsoleTable : IntIdTable(name = "consoles") {
     val image = varchar("image", 512)
     val price = double("price").default(0.0)
     val favorite = bool("favorite").default(false)
+    val userEmail = varchar("user_email", 128)
 }

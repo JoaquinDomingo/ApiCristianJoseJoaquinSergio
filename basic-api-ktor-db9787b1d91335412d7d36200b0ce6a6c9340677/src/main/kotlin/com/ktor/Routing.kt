@@ -2,10 +2,8 @@ package com.ktor
 
 import com.data.repository.ConsoleProviderUseCase
 import com.data.repository.UserRepository
-import com.domain.models.Console
-import com.domain.models.Game
-import com.domain.models.UpdateConsole
-import com.domain.models.User
+import com.data.repository.MessageRepository // Necesitarás crear este repositorio
+import com.domain.models.*
 import io.ktor.http.*
 import io.ktor.serialization.*
 import io.ktor.server.application.*
@@ -14,6 +12,15 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.auth.*
+import io.ktor.server.websocket.*
+import io.ktor.websocket.*
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import java.util.concurrent.ConcurrentHashMap
+import io.ktor.server.auth.jwt.JWTPrincipal
+
+// Mapa global para rastrear usuarios conectados (Email -> Sesión)
+val userSessions = ConcurrentHashMap<String, DefaultWebSocketServerSession>()
 
 fun Application.configureRouting() {
     routing {
@@ -21,6 +28,7 @@ fun Application.configureRouting() {
             call.respondText("Servidor de Consolas Activo")
         }
 
+        // --- AUTH PÚBLICA ---
         post("/register") {
             val request = call.receive<User>()
             val repo = UserRepository()
@@ -44,14 +52,62 @@ fun Application.configureRouting() {
             }
         }
 
+        // --- RUTAS PROTEGIDAS (JWT) ---
         authenticate("auth-jwt") {
-            // 1. Obtener todas las consolas
+            
+            // 1. CHAT EN TIEMPO REAL (WebSocket)
+            // Se conecta en: ws://dominio/chat?email=usuario@gmail.com
+            webSocket("/chat") {
+                val email = call.parameters["email"] ?: return@webSocket close(
+                    CloseReason(CloseReason.Codes.VIOLATED_POLICY, "Email no proporcionado")
+                )
+
+                userSessions[email] = this
+                println("INFO: Usuario $email conectado al socket")
+
+                try {
+                    for (frame in incoming) {
+                        if (frame is Frame.Text) {
+                            val text = frame.readText()
+                            val msg = Json.decodeFromString<ChatMessage>(text)
+
+                            // Guardar en MariaDB
+                            MessageRepository.saveMessage(msg)
+
+                            // Reenviar al receptor si está conectado
+                            userSessions[msg.receiver]?.let { recipientSession ->
+                                recipientSession.send(Frame.Text(Json.encodeToString(msg)))
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    println("ERROR: Chat de $email interrumpido: ${e.localizedMessage}")
+                } finally {
+                    userSessions.remove(email)
+                    println("INFO: Usuario $email desconectado")
+                }
+            }
+
+            // 2. OBTENER HISTORIAL DE MENSAJES
+            // GET /messages?with=amigo@gmail.com
+            get("/messages") {
+                val myEmail = call.principal<JWTPrincipal>()?.payload?.getClaim("email")?.asString() ?: ""
+                val otherEmail = call.request.queryParameters["with"] ?: ""
+                
+                if (otherEmail.isEmpty()) {
+                    call.respond(HttpStatusCode.BadRequest, "Falta el parámetro 'with'")
+                } else {
+                    val history = MessageRepository.getChatHistory(myEmail, otherEmail)
+                    call.respond(history)
+                }
+            }
+
+            // --- RUTAS DE CONSOLAS ---
             get("/console") {
                 val consoles = ConsoleProviderUseCase.getAllConsoles()
                 call.respond(consoles)
             }
 
-            // 2. Obtener una consola por nombre
             get("/console/{name}") {
                 val name = call.parameters["name"] ?: ""
                 val console = ConsoleProviderUseCase.getConsoleByName(name)
@@ -62,7 +118,6 @@ fun Application.configureRouting() {
                 }
             }
 
-            // 3. Crear una nueva consola
             post("/console") {
                 try {
                     val console = call.receive<Console>()
@@ -77,7 +132,6 @@ fun Application.configureRouting() {
                 }
             }
 
-            // 4. Añadir juego
             post("/console/{name}/game") {
                 val name = call.parameters["name"] ?: ""
                 val isNative = call.request.queryParameters["isNative"]?.toBoolean() ?: true
@@ -94,7 +148,6 @@ fun Application.configureRouting() {
                 }
             }
 
-            // 5. Actualizar consola
             patch("/console/{name}") {
                 val name = call.parameters["name"] ?: ""
                 try {
@@ -110,7 +163,6 @@ fun Application.configureRouting() {
                 }
             }
 
-            // 6. Eliminar consola
             delete("/console/{name}") {
                 val name = call.parameters["name"] ?: ""
                 val deleted = ConsoleProviderUseCase.deleteConsoleByName(name)
@@ -122,7 +174,6 @@ fun Application.configureRouting() {
             }
         }
 
-        // Recursos estáticos (imágenes, etc.)
         staticResources("/static", "static")
     }
 }

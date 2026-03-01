@@ -1,6 +1,7 @@
 package com.domain.models
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerialName
 
 @Serializable
 data class Console(
@@ -11,6 +12,7 @@ data class Console(
     var image: String,
     val price: Double,
     val favorite: Boolean,
+    @SerialName("user_email") val userEmail: String,
     var nativeGames: List<Game> = emptyList(),
     var adaptedGames: List<Game> = emptyList()
     

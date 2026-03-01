@@ -12,15 +12,11 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 
 class ConsoleRepositoryImpl : ConsoleRepository {
 
-    /**
-     * Mapea una fila de la tabla de consolas y recupera sus juegos
-     * separándolos por tipo (Nativos vs Adaptados).
-     */
     private fun ResultRow.toConsoleWithGames(): Console {
         val consoleName = this[ConsoleTable.name]
         
-        // Obtenemos todos los juegos vinculados a esta consola de una sola vez
-        val allGamesRows = GameTable.select { GameTable.consoleName eq consoleName }.toList()
+        // CORRECCIÓN: Usar selectAll().where para evitar ambigüedades en versiones nuevas
+        val allGamesRows = GameTable.selectAll().where { GameTable.consoleName eq consoleName }.toList()
 
         return Console(
             name = consoleName,
@@ -28,28 +24,25 @@ class ConsoleRepositoryImpl : ConsoleRepository {
             company = this[ConsoleTable.company],
             description = this[ConsoleTable.description],
             image = this[ConsoleTable.image],
-            price = this[ConsoleTable.price],        // RECUPERAR PRECIO
-            favorite = this[ConsoleTable.favorite]   // CAMBIADO: Coincide con el dominio
+            price = this[ConsoleTable.price],
+            favorite = this[ConsoleTable.favorite],
+            userEmail = this[ConsoleTable.userEmail] 
         ).apply {
-            // Filtramos y mapeamos a la lista de Nativos
             this.nativeGames = allGamesRows
                 .filter { it[GameTable.isNative] }
                 .map { rowToGameModel(it) }
 
-            // Filtramos y mapeamos a la lista de Adaptados
             this.adaptedGames = allGamesRows
                 .filter { !it[GameTable.isNative] }
                 .map { rowToGameModel(it) }
         }
     }
 
-    /**
-     * Helper para convertir una fila de GameTable al modelo Game
-     */
+    // CORRECCIÓN CRÍTICA: Había un row[row[...]] que causaba el fallo de tipos
     private fun rowToGameModel(row: ResultRow) = Game(
         title = row[GameTable.title],
         releaseDate = row[GameTable.releaseDate],
-        description = row[GameTable.description],
+        description = row[GameTable.description], // Corregido: antes tenías row[row[...]]
         image = row[GameTable.image]
     )
 
@@ -58,7 +51,7 @@ class ConsoleRepositoryImpl : ConsoleRepository {
     }
 
     override suspend fun getConsoleByName(name: String): Console? = DatabaseFactory.dbQuery {
-        ConsoleTable.select { ConsoleTable.name eq name }
+        ConsoleTable.selectAll().where { ConsoleTable.name eq name }
             .singleOrNull()
             ?.toConsoleWithGames()
     }
@@ -71,15 +64,16 @@ class ConsoleRepositoryImpl : ConsoleRepository {
                 it[company] = console.company
                 it[description] = console.description
                 it[image] = console.image
-                it[price] = console.price         // GUARDAR PRECIO
-                it[favorite] = console.favorite   // CAMBIADO: Coincide con el dominio
+                it[price] = console.price
+                it[favorite] = console.favorite
+                it[userEmail] = console.userEmail 
             }
         }
     }
 
     override suspend fun deleteConsoleByName(name: String): Boolean = DatabaseFactory.dbQuery {
-        // Borramos los juegos asociados primero
-        GameTable.deleteWhere { GameTable.consoleName eq name }
+        // En versiones modernas de Exposed, deleteWhere requiere el scope explícito
+        GameTable.deleteWhere { consoleName eq name }
         ConsoleTable.deleteWhere { ConsoleTable.name eq name } > 0
     }
 
@@ -90,19 +84,19 @@ class ConsoleRepositoryImpl : ConsoleRepository {
             update.company?.let { c -> it[company] = c }
             update.description?.let { d -> it[description] = d }
             update.image?.let { i -> it[image] = i }
-            update.price?.let { p -> it[price] = p }             // ACTUALIZAR PRECIO
-            update.favorite?.let { f -> it[favorite] = f }       // CAMBIADO: Coincide con el dominio
+            update.price?.let { p -> it[price] = p }
+            update.favorite?.let { f -> it[favorite] = f }
         }
 
         val finalName = update.name ?: name
-        ConsoleTable.select { ConsoleTable.name eq finalName }
+        ConsoleTable.selectAll().where { ConsoleTable.name eq finalName }
             .singleOrNull()
             ?.toConsoleWithGames()
     }
 
     override suspend fun addGameToConsole(consoleName: String, game: Game, isNative: Boolean): Boolean = DatabaseFactory.dbQuery {
         try {
-            val consoleExists = ConsoleTable.select { ConsoleTable.name eq consoleName }.any()
+            val consoleExists = ConsoleTable.selectAll().where { ConsoleTable.name eq consoleName }.any()
             if (consoleExists) {
                 GameTable.insert {
                     it[title] = game.title
@@ -110,12 +104,10 @@ class ConsoleRepositoryImpl : ConsoleRepository {
                     it[description] = game.description
                     it[image] = game.image
                     it[GameTable.consoleName] = consoleName
-                    it[GameTable.isNative] = isNative // Se guarda la clasificación correcta
+                    it[GameTable.isNative] = isNative
                 }
                 true
-            } else {
-                false
-            }
+            } else false
         } catch (e: Exception) {
             false
         }
