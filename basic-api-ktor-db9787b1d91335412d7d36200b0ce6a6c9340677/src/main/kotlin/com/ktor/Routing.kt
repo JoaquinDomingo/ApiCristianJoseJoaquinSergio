@@ -50,12 +50,50 @@ fun Application.configureRouting() {
             }
         }
 
+<<<<<<< Updated upstream
         patch("/console/{name}") {
             val name = call.parameters["name"] ?: ""
             try {
                 val update = call.receive<UpdateConsole>()
                 val updated = ConsoleProviderUseCase.updateConsole(name, update)
                 if (updated == null) {
+=======
+            // 3. ENVIAR MENSAJE (REST, además de WebSocket)
+            post("/messages") {
+                try {
+                    val myEmail = call.principal<JWTPrincipal>()?.payload?.getClaim("email")?.asString() ?: ""
+                    val incoming = call.receive<ChatMessage>()
+
+                    if (myEmail.isBlank() || incoming.sender != myEmail) {
+                        call.respond(HttpStatusCode.Forbidden, "El remitente debe coincidir con el token")
+                        return@post
+                    }
+
+                    val message = if (incoming.timestamp == 0L)
+                        incoming.copy(timestamp = System.currentTimeMillis())
+                    else incoming
+
+                    MessageRepository.saveMessage(message)
+
+                    userSessions[message.receiver]?.send(Frame.Text(Json.encodeToString(message)))
+
+                    call.respond(HttpStatusCode.Created, message)
+                } catch (e: Exception) {
+                    call.respond(HttpStatusCode.BadRequest, "JSON de mensaje inválido")
+                }
+            }
+
+            // --- RUTAS DE CONSOLAS ---
+            get("/console") {
+                val consoles = ConsoleProviderUseCase.getAllConsoles()
+                call.respond(consoles)
+            }
+
+            get("/console/{name}") {
+                val name = call.parameters["name"] ?: ""
+                val console = ConsoleProviderUseCase.getConsoleByName(name)
+                if (console == null) {
+>>>>>>> Stashed changes
                     call.respond(HttpStatusCode.NotFound, "No se ha encontrado la consola")
                 } else {
                     call.respond(HttpStatusCode.OK, updated)
@@ -204,6 +242,7 @@ fun Application.configureRouting() {
         staticResources("/static", "static")
     }
 }
+<<<<<<< Updated upstream
 
 
 
@@ -235,3 +274,5 @@ fun Application.configureRouting() {
         Accept con application/json
  */
 */
+=======
+>>>>>>> Stashed changes

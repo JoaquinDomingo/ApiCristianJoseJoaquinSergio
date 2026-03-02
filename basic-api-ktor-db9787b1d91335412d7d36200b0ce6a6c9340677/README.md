@@ -50,6 +50,18 @@ Base path: `/`
 | PATCH  | `/console/{name}`   | Actualiza campos de una consola existente | Path `name`, body `UpdateConsole` (parcial)         |
 | DELETE | `/console/{name}`   | Elimina consola                           | `name` en path                                      |
 
+### Mensajes (JWT requerido)
+- `GET /messages?with=<email>`: historial ordenado con el usuario indicado.
+- `POST /messages`: envía mensaje (también lo reenvía por WebSocket si el receptor está conectado). Body:
+```json
+{
+  "sender": "yo@correo.com",        // debe coincidir con el email del token
+  "receiver": "otro@correo.com",
+  "message": "Hola!",
+  "timestamp": 0                    // opcional, se asigna en servidor si es 0
+}
+```
+
 ### Modelos
 ```json
 // Console
